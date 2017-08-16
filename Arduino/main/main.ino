@@ -2,7 +2,7 @@
 // http == n)//mag.switch-science.com/2013/04/01/fullcolor_serialled_tape/
 
 #include <Adafruit_NeoPixel.h>
-#define MAX_VAL 64  // 0 to 255 for brightness
+#define MAX_VAL 16  // 0 to 255 for brightness
 #define DELAY_TIME 50
 #define DELAY_TIME2 20
 
@@ -29,6 +29,9 @@ int idx;
 void setup() {
   horizontal.begin();
   horizontal.show(); // Initialize all pixels to 'off'
+
+  vertical.begin();
+  vertical.show();
 
   Serial.begin(9600);
 }
@@ -82,18 +85,28 @@ void setPixel(int axis, int num, uint32_t color){
 // 関数で取得するのなんかダサイけど、MAX_VALで最大値を変えないといけないので我慢する
 // 色合いは同じなので、水平方向のものを使う
 uint32_t getColor(char c){
+  // BLACK
+  if('k' == c)
+    return horizontal.Color(0, 0, 0);
+  // RED
   if('r' == c)
     return horizontal.Color(MAX_VAL, 0, 0);
+  // GREEN
   if('g' == c)
     return horizontal.Color(0, MAX_VAL, 0);
+  // YELLOW
   if('y' == c)
     return horizontal.Color(MAX_VAL, MAX_VAL, 0);
+  // BLUE
   if('b' == c)
     return horizontal.Color(0, 0, MAX_VAL);
+  // PURPLE
   if('p' == c)
     return horizontal.Color(MAX_VAL, 0, MAX_VAL);
+  // CYAN
   if('c' == c)
     return horizontal.Color(0, MAX_VAL, MAX_VAL);
+  // WHITE
   if('w' == c)
     return horizontal.Color(MAX_VAL, MAX_VAL, MAX_VAL);
 }
