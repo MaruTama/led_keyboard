@@ -22,15 +22,16 @@ var port = new SerialPort('/dev/cu.usbmodem14111', {
 });
 var parser = port.pipe(Readline({delimiter: '\r\n'}));
 
+// シリアルポートを開いたとき
 port.on('open', function () {
   console.log('Serial open.');
   // setInterval(write, 1000, '08,g,1,c\n');
 });
-
+// 受信したとき
 port.on('data', function (data) {
   console.log('Data: ' + data);
 });
-
+// データのシリアル送信
 function write(data) {
     console.log('Write: ' + data);
     port.write(new Buffer(data), function(err, results) {
@@ -102,11 +103,12 @@ app.get("/",function(req,res){
 //
 // })
 
+// postされたとき
 app.post('/set',function(req, res){
 
     var obj = {};
     // console.log('body: ' + JSON.stringify(req.body.name));
-    write('08,g,2,c\n');
+    // write('08,g,2,c\n');
     // write('08,k,2,k\n');
     var rejson = JSON.stringify(req.body);
     res.send(rejson);

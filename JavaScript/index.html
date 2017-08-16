@@ -24,64 +24,97 @@
 </head>
 <body>
 
-	<!-- <h1>会話テスト</h1> -->
+	<h1>キーボードの光るやつ</h1>
 
 	<div id="recogniting"></div>
   <button id="btnSwitch">
   start
   </button>
 
-	<ul id="result"></ul>
 	<div id="resultList"></div>
 
-
+	<!-- localhostのときのpathが分からないので、現状スクリプトを埋め込むことで動かす。 -->
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
 	<script type="text/javascript">
 		(function($){
 
 			// initialize
 			var recognition,isRecognition = false;
-			const LANG_JAPAN = "ja-JP";
 
 			// $(".start-btn").on("click",start);
+			// ボタンのリスナー
 			btnSwitch.addEventListener('click', function() {
 				if(btnSwitch.innerText === 'start') {
 					btnSwitch.textContent = 'stop';
-					test();
+					// test();
+					start();
 				} else {
 					btnSwitch.textContent = 'start';
+					stop();
 				}
 			});
 
-
-			/*
-			*		認識 start
-			*/
+			// 音声認識の開始
 			function start(){
 				recognition = new webkitSpeechRecognition(); // 音声認識
-				recognition.lang = LANG_JAPAN; // 日本語
+				recognition.lang = "ja";
+				//変換候補数を指定
+				recognition.maxAlternatives = 3;
 				recognition.start(); // 認識開始
-				isRecognition = !isRecognition; // 認識しているかどうかのフラグを反転
-				recognition.onend = function(){
+				isRecognition = true; // 認識しているかどうかのフラグを反転
+
+				// 音声認識可能な音声が検出された場合（話始め）に発火する
+				recognition.addEventListener('soundstart', function() {
+					console.log('on soundstart');
+					recogniting.classList.add('running');
+				});
+				// 音声認識可能な音声が検出されなくなったとき(話し終えた)に発火する
+				recognition.addEventListener('soundend', function() {
+					console.log('on soundend');
+					recogniting.classList.remove('running');
 					stop(); // 認識が終わったら終了する
-				}
-				recognition.onresult = function(e){ // 結果を得たら
-					if(e.results.length > 0){
-						var value = e.results[0][0].transcript; // ここに日本語
-						// talkData(value);
-						$("#result").append("<li>"+value+"</li>");
+				});
+				// 音声認識サービスが結果を返すときに発火する
+				recognition.addEventListener( 'result' , function(evt) {
+					var results = evt.results;
+					var text = '';
+					console.log('result');
+					for (var i = 0; i < event.results.length; i++) {
+						var result = results.item(i);
+						// 変換候補の取得
+		        for(var j = 0; j < result.length; j++){
+		            var alternavive = result.item(j);
+		            console.log(j + " : " + alternavive.transcript);
+								
+		        }
 					}
-				}
-				alert("喋って！")
+					var div = document.createElement('div');
+					div.textContent = text;
+					resultList.insertBefore(div, resultList.firstChild);
+				});
+				// 音声認識エラーが発生したときに発生します。
+				recognition.addEventListener('error', function(err) {
+					var div = document.createElement('div');
+					div.textContent = 'error:' + err.message;
+					div.classList.add('error');
+					resultList.insertBefore(div, resultList.firstChild);
+				});
+				// 音声認識サービスが有意な認識なしに最終結果を返すときに発生します.
+				// これには、ある程度の認識が必要であり、それは信頼限界を満たさないか、それを超えている。
+				recognition.addEventListener('nomatch', function() {
+					var div = document.createElement('div');
+					div.textContent = 'no match';
+					div.classList.add('nomatch');
+					resultList.insertBefore(div, resultList.firstChild);
+				});
 			}
 
-			/*
-			*		認識 stop
-			*/
+			// 音声認識の停止
 			function stop(){
 				if(isRecognition){
 					recognition.stop();
-					isRecognition = !isRecognition;
+					btnSwitch.textContent = 'start';
+					isRecognition = false;
 				}
 			}
 			function test() {
@@ -97,46 +130,6 @@
                    alert(status);
                 });
 			}
-
-			/*
-			*		スピーチ
-			*		@param { string } value (読み上げる文字)
-			*/
-			function speech(value){
-				var msg = new SpeechSynthesisUtterance();
-				var voices = window.speechSynthesis.getVoices();
-				msg.volume = 1;
-				msg.voice = voices[7];
-				msg.rate = 10;
-				msg.pitch = 2;
-				msg.text = value;
-				msg.lang = LANG_JAPAN;
-				speechSynthesis.speak(msg);
-				msg.onend = function(){
-					setTimeout(function(){
-						start();
-					},2000);
-				}
-			}
-
-			/*
-			*		会話データを取得しスピーチさせる（DOCOMO雑談API）
-			*		@param { string } value (自分が喋ったものから雑談を始める)
-			*/
-			function talkData(value){
-				$.ajax({
-					url: "/api",
-					type: "get",
-					data: {
-						text: value
-					},
-					success: function(data){
-						$("#result").append("<li>"+data.res+"</li>");
-						speech(data.res);
-					}
-				});
-			}
-
 		})(jQuery);
 	</script>
 </body>
