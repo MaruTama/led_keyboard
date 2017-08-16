@@ -48,6 +48,8 @@ function write(data) {
 var express = require("express");
 var request = require('request');
 var bodyParser = require('body-parser');
+var led_keyboard = require('./LEDkeyboard');
+var hepburn = require("hepburn"); // ひらがな->ローマ字変換
 var PORT = 4000 || process.env.PORT;
 var app = express();
 
@@ -107,13 +109,17 @@ app.get("/",function(req,res){
 app.post('/set',function(req, res){
 
     var obj = {};
+    // postされた文字列は、ひらがな一文字であるとする
     console.log('body: ' + JSON.stringify(req.body.name));
     // write('08,g,2,c\n');
     // write('08,k,2,k\n');
-    var a = require('./LEDkeyboard');
-    var led = a.getLED_Position('g');
-    console.log(led.x);
-    console.log(led.y);
+    //
+    var romaji = hepburn.fromKana(req.body.name);
+    console.log(romaji);
+    // ひらがな->ローマ字変換
+    var led = led_keyboard.getLED_Position(romaji.substring(0,1));
+    write(("0" + led.x).substr(-2) + ",g," + led.y +",g\n");
+    // write("08,g,2,c\n");
 
     var rejson = JSON.stringify(req.body);
     res.send(rejson);
@@ -122,9 +128,3 @@ app.post('/set',function(req, res){
 app.listen(PORT,function(){
 	console.log("app is http://localhost:"+PORT)
 })
-
-
-
-// ひらがなからLEDの情報
-// var a = require('./LEDkeyboard');
-// a.getLED_Position('c');
