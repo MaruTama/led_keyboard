@@ -107,7 +107,7 @@ app.get("/",function(req,res){
 app.post('/set',function(req, res){
 
     var obj = {};
-    // console.log('body: ' + JSON.stringify(req.body.name));
+    console.log('body: ' + JSON.stringify(req.body.name));
     // write('08,g,2,c\n');
     // write('08,k,2,k\n');
     var rejson = JSON.stringify(req.body);

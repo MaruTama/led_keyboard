@@ -85,8 +85,31 @@
 		        for(var j = 0; j < result.length; j++){
 		            var alternavive = result.item(j);
 		            console.log(j + " : " + alternavive.transcript);
-								
+								// 適合率
+								// alternavive.confidence;
+								var idx = alternavive.transcript.indexOf('はどこ')
+								// 認識した文字列に'はどこ'が含まれているとき、'はどこ'の前の文字を取り出す。
+								if (idx != -1) {
+									console.log("find!");
+									var s = alternavive.transcript.substring(0,idx)
+									// ひらがな一文字であったとき
+									if(isHiragana(s)){
+										text = s;
+										console.log(text);
+									}
+								}
+								idx = alternavive.transcript.indexOf('わどこ')
+								if (idx != -1) {
+									console.log("find!");
+									var s = alternavive.transcript.substring(0,idx)
+									if(isHiragana(s)){
+										text = s;
+										console.log(text);
+									}
+								}
 		        }
+						isHiragana(s)
+						setLED(text);
 					}
 					var div = document.createElement('div');
 					div.textContent = text;
@@ -117,18 +140,31 @@
 					isRecognition = false;
 				}
 			}
-			function test() {
+			// サーバー(node.js)に音声認識で取得したひらがなをpostする
+			function setLED(s) {
 				$.ajax({
           async: false,
           url: "/set",
           type: 'post',
-          data:{"name": "musa"},
+          data:{"name": s},
           dataType: 'json'
                 }).done(function(res){
                  console.debug(res);
                 }).fail(function(xhr, status, error){
                    alert(status);
                 });
+			}
+			// ひらがな一文字であるか
+			function isHiragana(s) {
+				// http://winter-tail.sakura.ne.jp/pukiwiki/index.php?JavaScript%A4%A2%A4%EC%A4%B3%A4%EC%2F%C0%B5%B5%AC%C9%BD%B8%BD%A5%D1%A5%BF%A1%BC%A5%F3
+				// ^	行頭
+				// $	行末
+				if (s.match(/^[\u3040-\u309F]$/)){
+					return true;
+				}
+				else {
+					return false;
+				}
 			}
 		})(jQuery);
 	</script>
