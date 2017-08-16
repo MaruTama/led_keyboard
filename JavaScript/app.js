@@ -110,6 +110,11 @@ app.post('/set',function(req, res){
     console.log('body: ' + JSON.stringify(req.body.name));
     // write('08,g,2,c\n');
     // write('08,k,2,k\n');
+    var a = require('./LEDkeyboard');
+    var led = a.getLED_Position('g');
+    console.log(led.x);
+    console.log(led.y);
+
     var rejson = JSON.stringify(req.body);
     res.send(rejson);
 });
@@ -117,3 +122,9 @@ app.post('/set',function(req, res){
 app.listen(PORT,function(){
 	console.log("app is http://localhost:"+PORT)
 })
+
+
+
+// ひらがなからLEDの情報
+// var a = require('./LEDkeyboard');
+// a.getLED_Position('c');
