@@ -113,13 +113,15 @@ app.post('/set',function(req, res){
     console.log('body: ' + JSON.stringify(req.body.name));
     // write('08,g,2,c\n');
     // write('08,k,2,k\n');
-    //
+
+    // ひらがな->ローマ字変換
     var romaji = hepburn.fromKana(req.body.name);
     console.log(romaji);
-    // ひらがな->ローマ字変換
+    // ローマ字からLEDの位置を取得
     var led = led_keyboard.getLED_Position(romaji.substring(0,1));
+    // 0のパッティングの方法
+    // http://takuya-1st.hatenablog.jp/entry/2014/12/03/114154
     write(("0" + led.x).substr(-2) + ",g," + led.y +",g\n");
-    // write("08,g,2,c\n");
 
     var rejson = JSON.stringify(req.body);
     res.send(rejson);
