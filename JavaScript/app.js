@@ -108,7 +108,11 @@ app.get("/",function(req,res){
 // postされたとき
 app.post('/set',function(req, res){
 
-    var obj = {};
+    // 何m秒間LEDを点灯させるか(後で文字ごとに変更できたらいいかな)
+    var litgthtime = 5000;
+    // 何秒後に消灯するか(子音があるかないかで変わる)
+    var delaytime;
+
     // postされた文字列は、ひらがな一文字であるとする
     console.log('body: ' + JSON.stringify(req.body.name));
     // write('08,g,2,c\n');
@@ -118,10 +122,28 @@ app.post('/set',function(req, res){
     var romaji = hepburn.fromKana(req.body.name);
     console.log(romaji);
     // ローマ字からLEDの位置を取得
-    var led = led_keyboard.getLED_Position(romaji.substring(0,1));
+    var led = led_keyboard.getLED_Position(romaji.charAt(0));
     // 0のパッティングの方法
     // http://takuya-1st.hatenablog.jp/entry/2014/12/03/114154
     write(("0" + led.x).substr(-2) + ",g," + led.y +",g\n");
+    // 子音と母音がある文字のとき
+    if(romaji.length == 2){
+      led = led_keyboard.getLED_Position(romaji.charAt(1));
+      // delaytime ms後に二文字目(母音)のLEDを点灯する
+      setTimeout(
+        function(){
+          write(("0" + led.x).substr(-2) + ",g," + led.y +",g\n");
+        }, litgthtime);
+      delaytime = litgthtime * 2;
+    }
+    else{
+      delaytime = litgthtime
+    }
+    // 消灯
+    setTimeout(
+      function(){
+        write(("0" + led.x).substr(-2) + ",k," + led.y +",k\n");
+      }, delaytime);
 
     var rejson = JSON.stringify(req.body);
     res.send(rejson);

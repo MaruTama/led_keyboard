@@ -30,7 +30,7 @@
   <button id="btnSwitch">
   start
   </button>
-
+	<input type="text" name="txtb" value=""><br>
 	<div id="resultList"></div>
 
 	<!-- localhostのときのpathが分からないので、現状スクリプトを埋め込むことで動かす。 -->
@@ -92,9 +92,9 @@
 								if (idx != -1) {
 									console.log("find!");
 									var s = alternavive.transcript.substring(0,idx)
-									// ひらがな一文字であったとき
+									// 先頭一文字がひらがなであったとき
 									if(isHiragana(s)){
-										text = s;
+										text = s.charAt(0);
 										console.log(text);
 									}
 								}
@@ -103,12 +103,11 @@
 									console.log("find!");
 									var s = alternavive.transcript.substring(0,idx)
 									if(isHiragana(s)){
-										text = s;
+										text = s.charAt(0);
 										console.log(text);
 									}
 								}
 		        }
-						isHiragana(s)
 						setLED(text);
 					}
 					var div = document.createElement('div');
@@ -132,6 +131,7 @@
 				});
 			}
 
+
 			// 音声認識の停止
 			function stop(){
 				if(isRecognition){
@@ -140,6 +140,7 @@
 					isRecognition = false;
 				}
 			}
+
 			// サーバー(node.js)に音声認識で取得したひらがなをpostする
 			function setLED(s) {
 				$.ajax({
@@ -154,12 +155,14 @@
                    alert(status);
                 });
 			}
-			// ひらがな一文字であるか
+			// 任意の文字列の先頭一文字がひらがなであるか
 			function isHiragana(c) {
 				// http://winter-tail.sakura.ne.jp/pukiwiki/index.php?JavaScript%A4%A2%A4%EC%A4%B3%A4%EC%2F%C0%B5%B5%AC%C9%BD%B8%BD%A5%D1%A5%BF%A1%BC%A5%F3
 				// ^	行頭
 				// $	行末
-				if (c.match(/^[\u3040-\u309F]$/)){
+				// . 任意の1文字
+				// * 直前の１文字の０回以上の繰り返し
+				if (c.match(/^[\u3040-\u309F].*$/)){
 					return true;
 				}
 				else {
