@@ -85,42 +85,29 @@ app.get("/regcongnition.json",function(req,res){
 // postされたとき
 app.post('/set',function(req, res){
 
-    // 何m秒間LEDを点灯させるか(後で文字ごとに変更できたらいいかな)
-    var litgthtime = 5000;
-    // 何秒後に消灯するか(子音があるかないかで変わる)
-    var delaytime;
-
     // postされた文字列は、ひらがな一文字であるとする
     console.log('body: ' + JSON.stringify(req.body.name));
     // write('08,g,2,c\n');
     // write('08,k,2,k\n');
 
     // ひらがな->ローマ字変換
-    var romaji = hepburn.fromKana(req.body.name);
-    console.log(romaji);
-    // ローマ字からLEDの位置を取得
-    var led = led_keyboard.getLED_Position(romaji.charAt(0));
-    // 0のパッティングの方法
-    // http://takuya-1st.hatenablog.jp/entry/2014/12/03/114154
-    write(("0" + led.x).substr(-2) + "," + COLOR + "," + led.y +"," + COLOR + "\n");
-    // 子音と母音がある文字のとき
-    if(romaji.length == 2){
-      led = led_keyboard.getLED_Position(romaji.charAt(1));
-      // delaytime ms後に二文字目(母音)のLEDを点灯する
-      setTimeout(
-        function(){
-          write(("0" + led.x).substr(-2) + "," + COLOR + "," + led.y +"," + COLOR + "\n");
-        }, litgthtime);
-      delaytime = litgthtime * 2;
+    // var romaji = hepburn.fromKana(req.body.name);
+    console.log(req.body.name);
+
+    // 消灯
+    if(req.body.name === "turn off"){
+      // ArduinoへLED表示の命令を送る
+      // Arduino側では光らせる前にすべてのLEDを消しているので、
+      // 仮想で黒(無灯火)を書き込んで、すべてのLED消している
+      write("00,k,0,k\n");
     }
     else{
-      delaytime = litgthtime
+      // アルファベットからLEDの位置を取得
+      var led = led_keyboard.getLED_Position(req.body.name);
+      // 0のパッティングの方法
+      // http://takuya-1st.hatenablog.jp/entry/2014/12/03/114154
+      write(("0" + led.x).substr(-2) + "," + COLOR + "," + led.y +"," + COLOR + "\n");
     }
-    // 消灯
-    setTimeout(
-      function(){
-        write(("0" + led.x).substr(-2) + ",k," + led.y +",k\n");
-      }, delaytime);
 
     var rejson = JSON.stringify(req.body);
     res.send(rejson);
