@@ -6,7 +6,7 @@
 #define DELAY_TIME 50
 #define DELAY_TIME2 20
 
-#define HORIZONTAL 0 
+#define HORIZONTAL 0
 #define VERTICAL   1
 
 // Parameter 1 = LEDの数
@@ -60,7 +60,7 @@ void loop() {
     char *hzn_clr = strtok(NULL, ",");
     int  vzn_num = atoi(strtok(NULL, ","));
     char *vzn_clr = strtok(NULL, ",");
-    
+
     setPixel(HORIZONTAL, hzn_num, getColor(*hzn_clr));
     setPixel(VERTICAL  , vzn_num, getColor(*vzn_clr));
   }
@@ -78,11 +78,10 @@ void setPixel(int axis, int num, uint32_t color){
     vertical.setPixelColor(num, color);
     vertical.show();
   }
-  
+
 }
 
 // 指定した色を返す。
-// 関数で取得するのなんかダサイけど、MAX_VALで最大値を変えないといけないので我慢する
 // 色合いは同じなので、水平方向のものを使う
 uint32_t getColor(char c){
   // BLACK

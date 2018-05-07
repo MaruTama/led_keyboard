@@ -13,6 +13,16 @@
 // CYAN   c
 // WHITE  w
 
+const RED    = "r";
+const GREEN  = "g";
+const YELLOW = "y";
+const BLUE   = "b";
+const PURPLE = "p";
+const CYAN   = "c";
+const WHITE  = "w";
+
+// 表示する色を変更する
+const COLOR = GREEN;
 
 // シリアル通信関係
 var SerialPort = require('serialport');
@@ -53,19 +63,6 @@ var hepburn = require("hepburn"); // ひらがな->ローマ字変換
 var PORT = 4000 || process.env.PORT;
 var app = express();
 
-// var status = {
-// 	nickname: "じゅんじゅん",
-// 	nickname_y: "ジュンジュン",
-// 	sex: "男",
-// 	bloodtype: "O",
-// 	birthdateY: 1997,
-// 	birthdateM: 3,
-// 	birthdateD: 3,
-// 	age: 19,
-// 	constellations: "魚座",
-// 	place: "大阪"
-// };
-
 // Node.jsとjQuery.Ajaxの通信
 // http://qiita.com/nishun0419/items/5f223cc0c39ec65e620c
 app.use(bodyParser.urlencoded({extended: false}));
@@ -81,29 +78,9 @@ app.get("/",function(req,res){
 	res.sendfile("index.html");
 })
 
-// app.get("/api",function(req,res){
-// 	var value = req.query.text,
-// 			url = "https://api.apigw.smt.docomo.ne.jp/dialogue/v1/dialogue?APIKEY=",
-// 			token = process.env.DOCOMO_API_KEY;
-//
-// 	status.utt = value;
-//
-// 	var param = {
-// 		body: JSON.stringify(status),
-// 		"Content-Type": "application/json"
-// 	}
-//
-// 	request.post(url+token,param,function(err,response,data){
-// 		if (err) throw err;
-// 		var body = JSON.parse(data)
-// 		status.context = body.context;
-// 		body.utt = value == "バイバイ" ? "またねー！" : body.utt
-// 		res.json({
-// 			res: body.utt
-// 		})
-// 	});
-//
-// })
+app.get("/regcongnition.json",function(req,res){
+	res.sendfile("regcongnition.json");
+})
 
 // postされたとき
 app.post('/set',function(req, res){
@@ -125,14 +102,14 @@ app.post('/set',function(req, res){
     var led = led_keyboard.getLED_Position(romaji.charAt(0));
     // 0のパッティングの方法
     // http://takuya-1st.hatenablog.jp/entry/2014/12/03/114154
-    write(("0" + led.x).substr(-2) + ",g," + led.y +",g\n");
+    write(("0" + led.x).substr(-2) + "," + COLOR + "," + led.y +"," + COLOR + "\n");
     // 子音と母音がある文字のとき
     if(romaji.length == 2){
       led = led_keyboard.getLED_Position(romaji.charAt(1));
       // delaytime ms後に二文字目(母音)のLEDを点灯する
       setTimeout(
         function(){
-          write(("0" + led.x).substr(-2) + ",g," + led.y +",g\n");
+          write(("0" + led.x).substr(-2) + "," + COLOR + "," + led.y +"," + COLOR + "\n");
         }, litgthtime);
       delaytime = litgthtime * 2;
     }

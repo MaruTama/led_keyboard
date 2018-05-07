@@ -1,2 +1,9 @@
 # 概要
-幼児期のQWERTY配列のキーボードでのローマ字入力学習補助機材の開発
+パソコンに対して、入力したい文字を言うとキーボード上のLEDが位置を教えてくれるアプリケーション
+
+```
+cd JavaScript
+node app.js
+ps aux | grep node
+sudo kill -9 pid
+```

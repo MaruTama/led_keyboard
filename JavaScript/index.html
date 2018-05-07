@@ -20,6 +20,16 @@
 		div.nomatch {
 			color: blue;
 		}
+		button{
+			width:100px;
+			height:50px;
+			font-size:18px;
+		}
+		input[type=text]{
+			width:200px;
+			height:50px;
+			font-size:18px;
+		}
 	</style>
 </head>
 <body>
@@ -40,6 +50,10 @@
 
 			// initialize
 			var recognition,isRecognition = false;
+
+			var reg_candidate;
+			// jsonの取得を行う
+			getJSON();
 
 			// $(".start-btn").on("click",start);
 			// ボタンのリスナー
@@ -84,28 +98,15 @@
 						// 変換候補の取得
 		        for(var j = 0; j < result.length; j++){
 		            var alternavive = result.item(j);
-		            console.log(j + " : " + alternavive.transcript);
-								// 適合率
-								// alternavive.confidence;
-								var idx = alternavive.transcript.indexOf('はどこ')
-								// 認識した文字列に'はどこ'が含まれているとき、'はどこ'の前の文字を取り出す。
-								if (idx != -1) {
-									console.log("find!");
-									var s = alternavive.transcript.substring(0,idx)
-									// 先頭一文字がひらがなであったとき
-									if(isHiragana(s)){
-										text = s.charAt(0);
-										console.log(text);
-									}
-								}
-								idx = alternavive.transcript.indexOf('わどこ')
-								if (idx != -1) {
-									console.log("find!");
-									var s = alternavive.transcript.substring(0,idx)
-									if(isHiragana(s)){
-										text = s.charAt(0);
-										console.log(text);
-									}
+								// 空白を削除する
+								// https://www.nishishi.com/javascript-tips/trim-space-chars.html
+								var transcript = alternavive.transcript.replace(/\s+/g, "");
+								console.log(j + " : " + transcript);
+								// regcongnition.jsonに読みの候補がある場合
+								if(typeof reg_candidate[alternavive.transcript] !== "undefined"){
+									text = reg_candidate[alternavive.transcript];
+									console.log("find : " + text);
+									break;
 								}
 		        }
 						setLED(text);
@@ -155,20 +156,48 @@
                    alert(status);
                 });
 			}
-			// 任意の文字列の先頭一文字がひらがなであるか
-			function isHiragana(c) {
-				// http://winter-tail.sakura.ne.jp/pukiwiki/index.php?JavaScript%A4%A2%A4%EC%A4%B3%A4%EC%2F%C0%B5%B5%AC%C9%BD%B8%BD%A5%D1%A5%BF%A1%BC%A5%F3
-				// ^	行頭
-				// $	行末
-				// . 任意の1文字
-				// * 直前の１文字の０回以上の繰り返し
-				if (c.match(/^[\u3040-\u309F].*$/)){
-					return true;
-				}
-				else {
-					return false;
-				}
+
+			// 認識語の候補のJSONを取得する
+			// https://www.koreyome.com/web/json-data-get/
+			function getJSON() {
+				// XMLHttpRequest オブジェクトを生成する
+			  var req = new XMLHttpRequest();
+				  // XMLHttpRequest オブジェクトの状態が変化した際に呼び出されるイベントハンドラ
+			  	req.onreadystatechange = function() {
+						// サーバーからのレスポンスが完了し、かつ、通信が正常に終了した場合
+			      if(req.readyState == 4 && req.status == 200){
+							// 取得した JSON ファイルの中身を変数へ格納
+			        var data = JSON.parse(req.responseText);
+							// keyとvalを入れ替える
+							reg_candidate = inverseObject(data);
+			      }
+			    };
+					// HTTPメソッドとアクセスするサーバーのURLを指定
+			    req.open("GET", "regcongnition.json", false);
+					// 実際にサーバーへリクエストを送信
+			    req.send(null);
 			}
+
+			/**
+			 * https://qiita.com/alucky0707/items/de59e49de855e56be733
+			 * オブジェクトのkeyとvaluesを反転させる
+			 * (ex.
+			 * "あ": ["阿波どこ","あはどこ","アはどこ"]
+			 *   -> "阿波どこ":"あ", "あはどこ":"あ", "アはどこ":"あ"
+			 * @param {Object} obj 反転させるオブジェクト
+			 * @return {Object} keyとvaluesの反転したオブジェクト
+			 */
+			function inverseObject (obj) {
+			  return Object.keys(obj).reduceRight(function (ret, k) {
+					// "あ": ["阿波どこ","あはどこ","アはどこ"]
+					// ここで配列を取得する
+					obj[k].forEach(function( value ) {
+						ret[value] = k
+					});
+			    return ret;
+			  }, {});
+			}
+
 		})(jQuery);
 	</script>
 </body>
