@@ -164,46 +164,65 @@
 				if(MODE == INTERVAL_MODE){
 					// 1文字目
 					sendLED(romaji[0]);
-					// 子音と母音がある文字のとき
-			    if(romaji.length == 2){
-			      // delayTime ms後に二文字目(母音)のLEDを点灯する
+					// ローマ字2文字以上のとき
+			    if(romaji.length > 1){
+			      // delayTime ms後に2文字目のLEDを点灯する
 			      setTimeout( function(){ sendLED(romaji[1]) }, lightTime );
-			      delayTime = lightTime * 2;
+						// もしある場合は3文字目のLEDを点灯する
+						if(romaji.length == 3){
+							setTimeout( function(){ sendLED(romaji[2]) }, lightTime*2 );
+						}
 					}
-					else{
-						delayTime = lightTime;
-					}
+					// for文で回すとうまく動かなくなる。setTimeoutが原因？短時間中に複数設定するとおかしくなる？
+					// for(var n=0; n<romaji.length; n++){
+					// 	var c = romaji[n];
+					// 	console.log(c);
+					// 	setTimeout( function(){ sendLED(c) }, lightTime*n );
+					// }
+					delayTime = lightTime * romaji.length;
 					// 消灯
 			    setTimeout( function(){ sendLED("turn off") }, delayTime );
 				}
 				else if (MODE == KEY_EVENT_MODE) {
+					// 子音が入力された回数
+					var countInputedConsonant = 0;
 					// 1文字目
 					sendLED(romaji[0]);
-
-					// 子音が入力されたかどうか
-					var isInputedConsonant = false;
 
 					function KeyDown(e){
 						// キーコード
 						var key_code = e.keyCode;
 
-						// 子音と母音がある文字のとき
-				    if(romaji.length == 2){
-							if(String.fromCharCode(key_code) === romaji[0]){
-								sendLED(romaji[1]);
-								isInputedConsonant = true;
-							}
-							else if(String.fromCharCode(key_code) === romaji[1] && isInputedConsonant){
-								removeLED();
-							}
-						}
 						// 母音のみの文字
-						else{
+						if(romaji.length == 1){
 							if(String.fromCharCode(key_code) === romaji[0]){
 								removeLED();
 							}
 						}
-
+						// ローマ字2文字のとき
+				    else if(romaji.length == 2){
+							if(String.fromCharCode(key_code) === romaji[0] && countInputedConsonant == 0){
+								sendLED(romaji[1]);
+								countInputedConsonant = 1 + countInputedConsonant;
+							}
+							else if(String.fromCharCode(key_code) === romaji[1] && countInputedConsonant == 1){
+								removeLED();
+							}
+						}
+						// ローマ字3文字のとき
+						if(romaji.length == 3){
+							if(String.fromCharCode(key_code) === romaji[0] && countInputedConsonant == 0){
+								sendLED(romaji[1]);
+								countInputedConsonant = 1 + countInputedConsonant;
+							}
+							else if(String.fromCharCode(key_code) === romaji[1] && countInputedConsonant == 1) {
+								sendLED(romaji[2]);
+								countInputedConsonant = 1 + countInputedConsonant;
+							}
+							else if(String.fromCharCode(key_code) === romaji[2] && countInputedConsonant == 2){
+								removeLED();
+							}
+						}
 					}
 					// イベントの解除とLEDの消灯
 					function removeLED() {
