@@ -193,34 +193,17 @@
 						// キーコード
 						var key_code = e.keyCode;
 
-						// 母音のみの文字
-						if(romaji.length == 1){
-							if(String.fromCharCode(key_code) === romaji[0]){
-								removeLED();
+						for(var n=0; n<romaji.length; n++){
+							// 最後の文字なので入力を確認したらLEDを消灯する
+							if(romaji.length == n+1){
+								if(String.fromCharCode(key_code) === romaji[n]){
+									removeLED();
+								}
 							}
-						}
-						// ローマ字2文字のとき
-				    else if(romaji.length == 2){
-							if(String.fromCharCode(key_code) === romaji[0] && countInputedConsonant == 0){
-								sendLED(romaji[1]);
+							// 入力待機の文字切り替え
+							else if(String.fromCharCode(key_code) === romaji[n] && countInputedConsonant == n){
+								sendLED(romaji[n+1]);
 								countInputedConsonant = 1 + countInputedConsonant;
-							}
-							else if(String.fromCharCode(key_code) === romaji[1] && countInputedConsonant == 1){
-								removeLED();
-							}
-						}
-						// ローマ字3文字のとき
-						if(romaji.length == 3){
-							if(String.fromCharCode(key_code) === romaji[0] && countInputedConsonant == 0){
-								sendLED(romaji[1]);
-								countInputedConsonant = 1 + countInputedConsonant;
-							}
-							else if(String.fromCharCode(key_code) === romaji[1] && countInputedConsonant == 1) {
-								sendLED(romaji[2]);
-								countInputedConsonant = 1 + countInputedConsonant;
-							}
-							else if(String.fromCharCode(key_code) === romaji[2] && countInputedConsonant == 2){
-								removeLED();
 							}
 						}
 					}
